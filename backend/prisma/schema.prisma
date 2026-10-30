@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User: Identity and credentials only — org/role membership lives in UserRole
+model User {
+  id String @id @default(uuid())
+  email String @unique @db.VarChar(255)
+  passwordHash String @db.VarChar(72)
+  firstName String @db.VarChar(255)
+  lastName String @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  roles UserRole[]
+  refreshTokens RefreshToken[]
+}
+
+// Organization: Tenant entity — deactivated via isActive flag, never deleted (compliance requirement)
+model Organization {
+ id String @id @default(uuid())
+ name String @db.VarChar(255)
+ description String? @db.VarChar(1000)
+ isActive Boolean @default(true)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ members UserRole[]
+}
+
+// Role: User role in an organization-
+enum Role {
+  ADMIN 
+  AUDITOR
+  AUDITEE
+  COMPLIANCE_MANAGER
+  RISK_OFFICER
+}
+
+// UserRole: Membership of a user in an organization with a specific role
+model UserRole {
+  userId String
+  organizationId String
+  role Role
+  assignedAt DateTime @default(now())
+
+ user User @relation(fields:[userId], references:[id])
+ organization Organization @relation(fields: [organizationId], references: [id])
+
+@@id([userId, organizationId]) //composite primary key to ensure a user can have only one role per organization
+@@index([organizationId])
+}
+
+
+// RefreshToken: For user session management
+model RefreshToken {
+  id String @id @default(uuid())
+  token String @unique @db.VarChar(255)
+  userId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
