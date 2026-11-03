@@ -5,6 +5,7 @@ import { loginController, logoutController, refreshController, registerControlle
 import { validateRequest } from '../../middleware/auth.middleware.js';
 import { loginSchema, signupSchema } from './auth.validation.js';
 import asyncHandler from '../../middleware/errors/asyncHandler.js';
+import { loginAccountLimiter, loginIpLimiter } from '../../middleware/rateLimit.middleware.js';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const router = Router();
 router.post('/register', validateRequest(signupSchema), asyncHandler(registerController));
 
 // POST /api/v1/auth/login
-router.post('/login', validateRequest(loginSchema), asyncHandler(loginController));
+router.post('/login', loginAccountLimiter, loginIpLimiter, validateRequest(loginSchema), asyncHandler(loginController));
 
 // POST /api/v1/auth/refresh
 router.post('/refresh', asyncHandler(refreshController));
