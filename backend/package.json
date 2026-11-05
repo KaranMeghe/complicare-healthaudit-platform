@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "jest --runInBand",
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "worker:refresh-token-cleanup": "tsx src/workers/refreshTokenCleanup.worker.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "express-rate-limit": "^8.7.3",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.6.0",
     "pg": "^8.23.0",
     "zod": "^4.6.5"
   },
