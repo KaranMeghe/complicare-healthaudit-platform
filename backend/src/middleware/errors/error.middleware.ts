@@ -3,6 +3,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { ConflictError } from './ConflictError.js';
 import { UnauthorizedError } from './unauthorizedError.js';
+import { TooManyRequestsError } from './TooManyRequestsError.js';
 
 export const errorMiddleware = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
@@ -16,6 +17,13 @@ export const errorMiddleware = (err: Error, _req: Request, res: Response, _next:
 
   if (err instanceof UnauthorizedError) {
     return res.status(401).json({
+      status: 'error',
+      message: err.message,
+    });
+  }
+
+  if (err instanceof TooManyRequestsError) {
+    return res.status(429).json({
       status: 'error',
       message: err.message,
     });
