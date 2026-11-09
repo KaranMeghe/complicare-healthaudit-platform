@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 // SignupSchema
 export const signupSchema = z.object({
-  email: z.email(),
+  email: z.string().trim().toLowerCase().pipe(z.email()),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')
